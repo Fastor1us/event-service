@@ -6,6 +6,7 @@ public interface IMessageProducer
         string topic,
         string key,
         string messageType,
+        Guid correlationId,
         string payload,
         CancellationToken ct);
 }

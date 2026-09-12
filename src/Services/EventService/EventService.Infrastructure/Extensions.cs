@@ -1,5 +1,6 @@
 using EventService.Application.Interfaces;
 using EventService.Infrastructure.Messaging;
+using EventService.Infrastructure.Messaging.Handlers;
 using EventService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

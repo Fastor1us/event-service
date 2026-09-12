@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 var config = builder.Configuration;
@@ -19,7 +17,8 @@ var jwtAudience = config["Jwt:Audience"] ?? "BookingPlatformClient";
 var jwtSigningKey = config["Jwt:SigningKey"] ?? "your-secure-signing-key-minimum-32-characters";
 var jwtExpiryMinutes = config["Jwt:ExpiryMinutes"] ?? "60";
 
-var userService = builder.AddProject<Projects.UserService_Presentation>("userservice")
+var userService = builder
+    .AddProject<Projects.UserService_Presentation>("userservice")
     .WithReference(usersDb)
     .WithEnvironment("Jwt__Issuer", jwtIssuer)
     .WithEnvironment("Jwt__Audience", jwtAudience)
@@ -28,7 +27,8 @@ var userService = builder.AddProject<Projects.UserService_Presentation>("userser
     .WithHttpEndpoint(port: 5001, name: "http")
     .WithExternalHttpEndpoints();
 
-var eventService = builder.AddProject<Projects.EventService_Presentation>("eventservice")
+var eventService = builder
+    .AddProject<Projects.EventService_Presentation>("eventservice")
     .WithReference(eventsDb)
     .WithEnvironment("Jwt__Issuer", jwtIssuer)
     .WithEnvironment("Jwt__Audience", jwtAudience)
@@ -37,7 +37,8 @@ var eventService = builder.AddProject<Projects.EventService_Presentation>("event
     .WithHttpEndpoint(port: 5002, name: "http")
     .WithExternalHttpEndpoints();
 
-var bookingService = builder.AddProject<Projects.BookingService_Presentation>("bookingservice")
+var bookingService = builder
+    .AddProject<Projects.BookingService_Presentation>("bookingservice")
     .WithReference(bookingsDb)
     .WithEnvironment("Jwt__Issuer", jwtIssuer)
     .WithEnvironment("Jwt__Audience", jwtAudience)
@@ -49,7 +50,5 @@ var bookingService = builder.AddProject<Projects.BookingService_Presentation>("b
 userService.WaitFor(usersDb);
 eventService.WaitFor(eventsDb);
 bookingService.WaitFor(bookingsDb);
-
-//builder.Services.AddServiceDiscovery();
 
 builder.Build().Run();

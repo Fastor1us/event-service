@@ -24,6 +24,7 @@ public sealed class KafkaProducer(IOptions<KafkaOptions> options)
         string topic,
         string key,
         string messageType,
+        Guid correlationId,
         string payload,
         CancellationToken ct)
     {
@@ -31,11 +32,15 @@ public sealed class KafkaProducer(IOptions<KafkaOptions> options)
         {
             Key = key,
             Value = payload,
-            Headers = new Headers
+            Headers = new Confluent.Kafka.Headers
             {
                 {
-                    "message-type",
+                    Headers.MessageType,
                     System.Text.Encoding.UTF8.GetBytes(messageType)
+                },
+                {
+                    Headers.CorrelationId,
+                    System.Text.Encoding.UTF8.GetBytes(correlationId.ToString())
                 }
             }
         };

@@ -82,6 +82,7 @@ public sealed class OutboxRelay(
                     topic: message.Topic,
                     key: message.Key,
                     messageType: message.MessageType,
+                    correlationId: message.CorrelationId,
                     payload: message.Payload,
                     ct);
 

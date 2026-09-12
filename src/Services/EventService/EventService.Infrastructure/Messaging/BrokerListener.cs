@@ -1,4 +1,5 @@
-﻿using Messaging.Kafka;
+﻿using EventService.Infrastructure.Messaging.Handlers;
+using Messaging.Kafka;
 using Messaging.Kafka.Contracts.Constants;
 using Microsoft.Extensions.Options;
 
@@ -15,4 +16,9 @@ public class BrokerListener(
 
     protected override string Topic { get; set; } = Topics.BookingCommandsTopic;
     protected override string GroupId { get; set; } = GroupIds.EventGroup;
+
+    protected override void SendToDeadLetters()
+    {
+        throw new NotImplementedException();
+    }
 }

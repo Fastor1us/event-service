@@ -2,5 +2,8 @@
 
 public interface IMessageHandler
 {
-    Task HandleAsync(string payload, CancellationToken cancellationToken);
+    Task HandleAsync(
+        Guid correlationId, 
+        string payload, 
+        CancellationToken ct);
 }

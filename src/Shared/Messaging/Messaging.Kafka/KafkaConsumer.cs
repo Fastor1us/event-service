@@ -18,7 +18,7 @@ public abstract class KafkaConsumer(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        //await EnsureTopicExistsAsync(stoppingToken);
+        await EnsureTopicExistsAsync(stoppingToken);
 
         var config = new ConsumerConfig
         {
@@ -49,16 +49,12 @@ public abstract class KafkaConsumer(
 
                     // 1. Извлекаем тип сообщения из заголовков
                     var messageTypeHeader = result.Message.Headers
-                        .FirstOrDefault(h => h.Key == "message-type");
-
-                    if (messageTypeHeader == null)
-                    {
-                        // send to DLQ
-                        consumer.Commit(result);
-                        continue;
-                    }
+                        .First(h => h.Key == Headers.MessageType);
+                    var correlationIdHeader = result.Message.Headers
+                        .First(h => h.Key == Headers.MessageType);
 
                     var messageType = Encoding.UTF8.GetString(messageTypeHeader.GetValueBytes());
+                    var correlationId = Encoding.UTF8.GetString(correlationIdHeader.GetValueBytes());
 
                     // 2. Ищем обработчик для этого типа
                     if (HandlerTypes.TryGetValue(messageType, out var handlerType))
@@ -69,7 +65,8 @@ public abstract class KafkaConsumer(
                             scope.ServiceProvider, handlerType);
 
                         // 4. Выполняем обработку
-                        await handler.HandleAsync(result.Message.Value, stoppingToken);
+                        await handler.HandleAsync(
+                            Guid.Parse(correlationId), result.Message.Value, stoppingToken);
 
                         // 5. Коммитим только после успешной обработки
                         consumer.Commit(result);
@@ -97,6 +94,8 @@ public abstract class KafkaConsumer(
             consumer.Close();
         }
     }
+
+    protected abstract void SendToDeadLetters();
 
     private async Task EnsureTopicExistsAsync(CancellationToken ct)
     {
